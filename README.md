@@ -329,41 +329,16 @@ app()->setLocale('ro');
 $title = metadata()->get('site.title'); // Will use 'ro'
 ```
 
-## 📖 Resources
- - [API Guide](METADATA_API_GUIDE.md) - Detailed API documentation and examples
- - [Changelog](CHANGELOG.md) - Version history and changes
- - [Contributing](CONTRIBUTING.md) - How to contribute to the project
- - [Security Vulnerabilities](../../security/policy) - Security policy and reporting
-
-## 👥 Credits
- - [Rdcstarr](https://github.com/rdcstarr) - Package author and maintainer
-
-## 📜 License
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
-
 ## 🧪 Testing
 ```bash
 composer test
 ```
 
-## 📁 Project Structure
-```
-src/
-├── Commands/
-│   └── InstallCommand.php          # Installation command
-├── Facades/
-│   └── Metadata.php               # Metadata facade
-├── Models/
-│   ├── Language.php               # Language model
-│   └── Metadata.php               # Metadata model
-├── helpers.php                    # Global helper functions
-├── MetadataManager.php            # Core metadata manager
-└── MultilanguageServiceProvider.php # Service provider
+## 📖 Resources
+ - [Changelog](CHANGELOG.md) for more information on what has changed recently.
 
-database/
-├── migrations/
-│   └── create_multilanguage_table.php # Database migrations
-└── seeders/
-    ├── languages.json             # Default languages data
-    └── LanguagesSeeder.php        # Languages seeder
-```
+## 👥 Credits
+ - [Rdcstarr](https://github.com/rdcstarr)
+
+## 📜 License
+ - [License](LICENSE.md) for more information.
