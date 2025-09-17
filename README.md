@@ -8,6 +8,7 @@
 > Elegant package for managing **multilanguage metadata** in Laravel — with intelligent caching, language-specific content, and intuitive API.
 
 ---
+
 ## ✨ Features
 
 - 🌍 **Multiple Languages** – manage content in multiple languages with easy switching
@@ -17,6 +18,7 @@
 - 📦 **Batch Operations** – set multiple metadata values at once
 - 🔄 **Fluent Interface** – chain methods for clean, readable code
 - 🗄️ **Database Relations** – proper Eloquent relationships with referential integrity
+
 ---
 
 ## 📦 Installation
