@@ -58,8 +58,6 @@ class MultilanguageServiceProvider extends PackageServiceProvider
 		 * More info: https://github.com/spatie/laravel-package-tools
 		 */
 		$package->name('multilanguage')
-			// ->hasMigration('create_multilanguage_table')
-			// ->runsMigrations()
 			->hasCommand(InstallCommand::class);
 	}
 }
