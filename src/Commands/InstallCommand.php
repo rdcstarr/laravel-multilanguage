@@ -11,10 +11,23 @@ use function Laravel\Prompts\confirm;
 
 class InstallCommand extends Command
 {
+	/**
+	 * The name and signature of the console command.
+	 *
+	 * @var string
+	 */
 	protected $signature = 'multilanguage:install {--force : Run commands without confirmation}';
 
+	/**
+	 * The console command description.
+	 *
+	 * @var string
+	 */
 	protected $description = 'Install the multilingual package';
 
+	/**
+	 * Execute the console command.
+	 */
 	public function handle()
 	{
 		if (!$this->option('force'))
@@ -49,12 +62,21 @@ class InstallCommand extends Command
 		$this->components->success('Multilanguage Package Installation Completed Successfully!');
 	}
 
-
+	/**
+	 * Run the migrations.
+	 *
+	 * @return void
+	 */
 	protected function runMigrations()
 	{
 		Artisan::call('migrate');
 	}
 
+	/**
+	 * Seed the languages table.
+	 *
+	 * @return void
+	 */
 	protected function runSeeder()
 	{
 

@@ -3,7 +3,7 @@
 if (!function_exists('metadata'))
 {
 	/**
-	 * Get app translation value or instance
+	 * Get app metadata value or instance
 	 *
 	 * @param string|null $key
 	 * @param string|null $default

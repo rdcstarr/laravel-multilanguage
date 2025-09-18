@@ -4,6 +4,7 @@ namespace Rdcstarr\Multilanguage;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use InvalidArgumentException;
 use Rdcstarr\Multilanguage\Models\Language;
 use Rdcstarr\Multilanguage\Models\Metadata;
 use Throwable;
@@ -43,7 +44,7 @@ class MetadataManager
 	 * Retrieve all settings from the cache or database.
 	 *
 	 * @return Collection A collection of all settings as key-value pairs.
-	 * @throws \InvalidArgumentException If the current language is not allowed.
+	 * @throws InvalidArgumentException If the current language is not allowed.
 	 */
 	public function all(): Collection
 	{
@@ -57,7 +58,7 @@ class MetadataManager
 	 *
 	 * @param string|null $languageCode The language code to set (e.g., 'en', 'ro').
 	 * @return $this A new instance of MetadataManager with the specified language.
-	 * @throws \InvalidArgumentException If the language is not allowed.
+	 * @throws InvalidArgumentException If the language is not allowed.
 	 */
 	public function lang(?string $languageCode): self
 	{
@@ -299,13 +300,13 @@ class MetadataManager
 	/**
 	 * Validate if the current language is allowed.
 	 *
-	 * @throws \InvalidArgumentException If the current language is not allowed.
+	 * @throws InvalidArgumentException If the current language is not allowed.
 	 */
 	protected function validateCurrentLanguage(): void
 	{
 		if ($this->allowedLanguages !== null && !in_array($this->languageCode, $this->allowedLanguages, true))
 		{
-			throw new \InvalidArgumentException("Language code '{$this->languageCode}' is not allowed. Allowed languages: " . implode(', ', $this->allowedLanguages));
+			throw new InvalidArgumentException("Language code '{$this->languageCode}' is not allowed. Allowed languages: " . implode(', ', $this->allowedLanguages));
 		}
 	}
 }

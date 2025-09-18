@@ -5,328 +5,236 @@
 [![Code Style](https://img.shields.io/github/actions/workflow/status/rdcstarr/laravel-multilanguage/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/rdcstarr/laravel-multilanguage/actions)
 [![Downloads](https://img.shields.io/packagist/dt/rdcstarr/laravel-multilanguage.svg?style=flat-square)](https://packagist.org/packages/rdcstarr/laravel-multilanguage)
 
-> Elegant package for managing **multilanguage metadata** in Laravel — with intelligent caching, language-specific content, and intuitive API.
-
----
+> Elegant package for managing **multilanguage metadata** in Laravel — with intelligent per‑language caching and a fluent API.
 
 ## ✨ Features
 
-- 🌍 **Multiple Languages** – manage content in multiple languages with easy switching
-- 🔑 **Metadata System** – store key-value pairs for each language
-- ⚡ **Intelligent Cache** – built-in cache layer optimized per language
-- 🎯 **Elegant API** – clean, intuitive syntax with method chaining
-- 📦 **Batch Operations** – set multiple metadata values at once
-- 🔄 **Fluent Interface** – chain methods for clean, readable code
-- 🗄️ **Database Relations** – proper Eloquent relationships with referential integrity
-
----
+- 🌍 **Multiple languages** – easily switch & manage localized content
+- 🔑 **Key-value metadata** – structured, namespaced keys per language
+- ⚡ **Smart cache** – per-language forever cache with auto invalidation
+- 📦 **Batch operations** – set or fetch many keys at once
+- 🔄 **Fluent API** – expressive chaining ( `metadata()->lang('en')->set(...)` )
+- 🧩 **Blade directives** – simple templating helpers & conditionals
+- 🗄️ **Clean schema** – normalized tables with FK constraints
 
 ## 📦 Installation
 
+Install via Composer:
 ```bash
 composer require rdcstarr/laravel-multilanguage
 ```
 
-Publish & migrate:
+1. (Optional) Publish migration files:
+   ```bash
+   php artisan vendor:publish --provider="Rdcstarr\Multilanguage\MultilanguageServiceProvider" --tag="migrations"
+   ```
+2. Run migrations:
+   ```bash
+   php artisan migrate
+   ```
+3. (Recommended) Use the install command (runs migrations & seeds default languages):
+   ```bash
+   php artisan multilanguage:install
+   ```
 
+Default seeded languages: English (en), Romanian (ro), French (fr).
+
+## 🛠️ Artisan Commands
+
+#### Install package (migrations + seed languages)
 ```bash
-php artisan vendor:publish --provider="Rdcstarr\Multilanguage\MultilanguageServiceProvider" --tag="migrations" // optional
-php artisan migrate
-php artisan multilanguage:install
+php artisan multilanguage:install [--force]
 ```
-
-Or use the install command that will handle everything automatically:
-```bash
-php artisan multilanguage:install
-```
-
-This command will:
-- Publish and run migrations
-- Seed the database with default languages (English, Romanian, French)
-- Set up the required database structure
-
-## 🚀 Quick Start
-
-```php
-// Set metadata for different languages
-metadata()->lang('en')->set('site.title', 'Welcome to our website');
-metadata()->lang('ro')->set('site.title', 'Bine ai venit pe site-ul nostru');
-metadata()->lang('fr')->set('site.title', 'Bienvenue sur notre site');
-
-// Get metadata values
-$title = metadata()->lang('en')->get('site.title');
-$titleWithDefault = metadata()->lang('es')->get('site.title', 'Default Title');
-
-// Work with current app locale
-$localizedTitle = metadata()->get('site.title'); // Uses app()->getLocale()
-```
+- --force : Skip interactive confirmation.
 
 ## 🔑 Usage
 
-### Setting Metadata Values
+### Set Values
 ```php
-// Single value for specific language
-metadata()->lang('en')->set('nav.home', 'Home');
-metadata()->lang('ro')->set('nav.home', 'Acasă');
+// Single key per language
+metadata()->lang('en')->set('site.title', 'Welcome to our website');
+metadata()->lang('ro')->set('site.title', 'Bine ai venit pe site-ul nostru');
 
-// Multiple values at once
+// Batch (multiple keys)
 metadata()->lang('en')->setMany([
-    'nav.home' => 'Home',
-    'nav.about' => 'About',
-    'nav.contact' => 'Contact',
-    'site.description' => 'Best website ever'
-]);
-
-metadata()->lang('ro')->setMany([
-    'nav.home' => 'Acasă',
-    'nav.about' => 'Despre',
-    'nav.contact' => 'Contact',
-    'site.description' => 'Cel mai bun site'
+    'nav.home'        => 'Home',
+    'nav.about'       => 'About',
+    'nav.contact'     => 'Contact',
+    'site.description'=> 'Best website ever',
 ]);
 ```
 
-### Getting Metadata Values
+### Get Values
 ```php
-// Single value with optional default
-$title = metadata()->lang('en')->get('site.title', 'Default Title');
+$title = metadata()->lang('en')->get('site.title');
+$titleWithDefault = metadata()->lang('es')->get('site.title', 'Default Title');
 
-// Multiple values
-$navigation = metadata()->lang('en')->getMany([
-    'nav.home',
-    'nav.about',
-    'nav.contact'
-]);
+// Multiple
+$navigation = metadata()->lang('en')->getMany(['nav.home', 'nav.about', 'nav.contact']);
 
-// All metadata for a language
+// All for a language
 $allEnglish = metadata()->lang('en')->all();
 
-// Using current app locale
-$localizedContent = metadata()->get('site.welcome_message');
+// Current app locale (app()->getLocale())
+$localized = metadata()->get('site.title', 'Fallback');
 ```
-
-### Facade Usage
-```php
-use Rdcstarr\Multilanguage\Facades\Metadata;
-
-Metadata::lang('en')->set('app.name', 'My App');
-Metadata::lang('ro')->set('app.name', 'Aplicația Mea');
-
-$appName = Metadata::lang('en')->get('app.name');
-```
-
-### Helper Functions
-```php
-// Using the global helper
-$title = metadata()->lang('en')->get('site.title', 'Default');
-$manager = metadata(); // Returns MetadataManager instance
-
-// Direct value access (uses current locale)
-$localizedTitle = metadata('site.title', 'Default Title');
-```
-
-### Utility Operations
-```php
-// Check if metadata exists
-$exists = metadata()->lang('en')->has('site.title');
-
-// Delete metadata
-metadata()->lang('en')->forget('old.unused.key');
-
-// Cache management
-metadata()->lang('en')->flushCache();    // Clear cache for specific language
-metadata()->flushAllCache();             // Clear cache for all languages
-```
----
-## � Language Management
 
 ### Working with Languages
 ```php
 use Rdcstarr\Multilanguage\Models\Language;
 
-// Create a new language
+// Create a language
 Language::create([
     'name' => 'Spanish',
     'code' => 'es',
     'flag' => '🇪🇸'
 ]);
 
-// Get all available languages
+// Retrieve
 $languages = Language::all();
+$english   = Language::where('code', 'en')->first();
 
-// Find language by code
-$english = Language::where('code', 'en')->first();
-```
-
-### Language-specific Metadata
-```php
-// Set up multilingual site content
-$languages = ['en', 'ro', 'fr', 'es'];
-$content = [
-    'en' => ['site.welcome' => 'Welcome!', 'nav.home' => 'Home'],
-    'ro' => ['site.welcome' => 'Bine ai venit!', 'nav.home' => 'Acasă'],
-    'fr' => ['site.welcome' => 'Bienvenue!', 'nav.home' => 'Accueil'],
-    'es' => ['site.welcome' => '¡Bienvenido!', 'nav.home' => 'Inicio']
-];
-
-foreach ($languages as $lang) {
-    metadata()->lang($lang)->setMany($content[$lang]);
+// Seed multiple values dynamically
+foreach (['en','ro','fr','es'] as $lang) {
+    metadata()->lang($lang)->set("demo.message", "Message for {$lang}");
 }
 ```
 
-## 🎨 Blade Integration
-
+### Facade
 ```php
-{{-- Get metadata for current locale --}}
-{{ metadata('site.title', 'Default Title') }}
+use Rdcstarr\Multilanguage\Facades\Metadata;
 
-{{-- Get metadata for specific language --}}
-@php
-    $title = metadata()->lang('en')->get('site.title', 'Default');
-@endphp
-
-{{-- In a loop for multiple languages --}}
-@foreach(['en', 'ro', 'fr'] as $lang)
-    <h1>{{ metadata()->lang($lang)->get('site.title') }}</h1>
-@endforeach
+Metadata::lang('en')->set('app.name', 'My App');
+Metadata::lang('ro')->set('app.name', 'Aplicația Mea');
+$appName = Metadata::lang('en')->get('app.name');
 ```
 
-## 💡 Real-World Examples
-
-### Website Content Management
+### Helper
 ```php
-// Set up homepage content in multiple languages
+// Manager instance
+overload($manager = metadata()); // same as app('metadata')
+
+// Direct access (current locale)
+$title = metadata('site.title', 'Default Title');
+```
+
+### Extra Operations
+```php
+metadata()->lang('en')->has('site.title');          // existence
+metadata()->lang('en')->forget('old.unused.key');   // delete one
+metadata()->lang('en')->flushCache();               // clear cache for one language
+metadata()->flushAllCache();                        // clear cache for all languages
+```
+
+## 🎨 Blade Directives
+```php
+{{-- Current locale value (with optional default) --}}
+@metadata('site.title', 'Default Title')
+
+{{-- Specific language --}}
+@metadataForLang('"en"', '"site.title"', '"Default"')
+
+{{-- Conditional (current locale) --}}
+@hasMetadata('site.title')
+    <h1>{{ metadata('site.title') }}</h1>
+@endhasMetadata
+
+{{-- Conditional (specific language) --}}
+@hasMetadataForLang('"ro"', '"site.title"')
+    <h1>{{ metadata()->lang('ro')->get('site.title') }}</h1>
+@endhasMetadataForLang
+```
+
+## 💡 Examples
+
+### Website Content
+```php
 metadata()->lang('en')->setMany([
-    'home.hero.title' => 'Welcome to Our Platform',
-    'home.hero.subtitle' => 'The best solution for your business',
-    'home.features.title' => 'Amazing Features'
+  'home.hero.title'    => 'Welcome to Our Platform',
+  'home.hero.subtitle' => 'The best solution for your business',
 ]);
-
 metadata()->lang('ro')->setMany([
-    'home.hero.title' => 'Bine ai venit pe Platforma Noastră',
-    'home.hero.subtitle' => 'Cea mai bună soluție pentru afacerea ta',
-    'home.features.title' => 'Funcționalități Minunate'
+  'home.hero.title'    => 'Bine ai venit pe Platforma Noastră',
+  'home.hero.subtitle' => 'Cea mai bună soluție pentru afacerea ta',
 ]);
-
-// In your controller
-public function index()
-{
-    $heroTitle = metadata()->get('home.hero.title');
-    $heroSubtitle = metadata()->get('home.hero.subtitle');
-
-    return view('home', compact('heroTitle', 'heroSubtitle'));
-}
 ```
 
-### SEO Meta Tags
+### SEO Meta
 ```php
-// Set SEO metadata for different pages and languages
 metadata()->lang('en')->setMany([
-    'seo.home.title' => 'Home - Best Platform Ever',
-    'seo.home.description' => 'Discover our amazing platform features',
-    'seo.about.title' => 'About Us - Our Story',
-    'seo.about.description' => 'Learn more about our company'
+  'seo.home.title' => 'Home - Best Platform Ever',
+  'seo.home.description' => 'Discover our amazing platform features',
 ]);
-
-metadata()->lang('ro')->setMany([
-    'seo.home.title' => 'Acasă - Cea Mai Bună Platformă',
-    'seo.home.description' => 'Descoperă funcționalitățile platformei noastre',
-    'seo.about.title' => 'Despre Noi - Povestea Noastră',
-    'seo.about.description' => 'Află mai multe despre compania noastră'
-]);
-
-// In your layout blade file
-<title>{{ metadata()->get('seo.' . request()->route()->getName() . '.title', 'Default Title') }}</title>
-<meta name="description" content="{{ metadata()->get('seo.' . request()->route()->getName() . '.description', 'Default description') }}">
+<title>{{ metadata()->get('seo.' . request()->route()->getName() . '.title', 'Default') }}</title>
 ```
 
-### User Preferences with Language Support
+### User Personalization
 ```php
-// Store user-specific settings per language
 $userId = auth()->id();
 metadata()->lang('en')->setMany([
-    "user.{$userId}.dashboard.welcome" => "Welcome back, John!",
-    "user.{$userId}.preferences.theme" => "dark"
+  "user.{$userId}.welcome" => 'Welcome back!',
 ]);
-
 metadata()->lang('ro')->setMany([
-    "user.{$userId}.dashboard.welcome" => "Bine ai revenit, John!",
-    "user.{$userId}.preferences.theme" => "dark"
+  "user.{$userId}.welcome" => 'Bine ai revenit!',
 ]);
 ```
 
-### E-commerce Product Information
+### Product Catalog
 ```php
-// Multi-language product descriptions
 $productId = 123;
 metadata()->lang('en')->setMany([
-    "product.{$productId}.name" => "Premium Laptop",
-    "product.{$productId}.description" => "High-performance laptop for professionals",
-    "product.{$productId}.features" => "Fast processor, 16GB RAM, SSD storage"
-]);
-
-metadata()->lang('ro')->setMany([
-    "product.{$productId}.name" => "Laptop Premium",
-    "product.{$productId}.description" => "Laptop de înaltă performanță pentru profesioniști",
-    "product.{$productId}.features" => "Procesor rapid, 16GB RAM, stocare SSD"
+  "product.{$productId}.name" => 'Premium Laptop',
+  "product.{$productId}.description" => 'High-performance laptop',
 ]);
 ```
 
-## 🏗️ Database Structure
+## 🏗️ Database Schema
 
-### Languages Table
+### languages
 ```sql
 CREATE TABLE languages (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL,     -- 'English', 'Română', 'Français'
-    code VARCHAR(10) NOT NULL,      -- 'en', 'ro', 'fr'
-    flag VARCHAR(10),               -- '🇺🇸', '🇷🇴', '🇫🇷'
+    name VARCHAR(255) NOT NULL,
+    code VARCHAR(10) NOT NULL,
+    flag VARCHAR(10),
     created_at TIMESTAMP,
     updated_at TIMESTAMP,
     UNIQUE KEY unique_code (code)
 );
 ```
 
-### Metadata Table
+### metadata
 ```sql
 CREATE TABLE metadata (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     language_id BIGINT NOT NULL,
-    key VARCHAR(255) NOT NULL,      -- 'site.title', 'nav.home'
-    value TEXT,                     -- 'Welcome', 'Home'
+    `key` VARCHAR(255) NOT NULL,
+    `value` TEXT,
     created_at TIMESTAMP,
     updated_at TIMESTAMP,
     FOREIGN KEY (language_id) REFERENCES languages(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_lang_key (language_id, key)
+    UNIQUE KEY unique_lang_key (language_id, `key`)
 );
 ```
 
-## ⚡ Performance Features
-
-### Intelligent Caching
-- **Per-language caching**: Each language has its own cache key
-- **Automatic cache invalidation**: Cache is cleared when metadata is updated
-- **Memory efficient**: Only requested languages are loaded into cache
-- **Forever cache**: Uses Laravel's `rememberForever` for optimal performance
-
-### Optimized Queries
-- **Eager loading**: Relationships are optimized to prevent N+1 queries
-- **Scoped queries**: Database queries are scoped by language code
-- **Batch operations**: Multiple metadata values can be set in single transaction
+## ⚡ Performance
+- Per-language cache buckets
+- Forever cache via rememberForever
+- Automatic invalidation on writes / deletes
+- Minimal queries (one load per language as needed)
+- Batch write operations
 
 ## 🔧 Configuration
-
-The package uses Laravel's default locale (`app()->getLocale()`) as the fallback language. You can customize this behavior by setting the language explicitly:
-
 ```php
-// Use specific language
+// Explicit language
 $title = metadata()->lang('en')->get('site.title');
 
-// Use app's current locale
+// Current locale
 $title = metadata()->get('site.title');
 
-// Set app locale and use it
+// Change locale then fetch
 app()->setLocale('ro');
-$title = metadata()->get('site.title'); // Will use 'ro'
+$title = metadata()->get('site.title');
 ```
 
 ## 🧪 Testing
@@ -335,10 +243,10 @@ composer test
 ```
 
 ## 📖 Resources
- - [Changelog](CHANGELOG.md) for more information on what has changed recently.
+- [Changelog](CHANGELOG.md) for recent changes.
 
 ## 👥 Credits
- - [Rdcstarr](https://github.com/rdcstarr)
+- [Rdcstarr](https://github.com/rdcstarr)
 
 ## 📜 License
- - [License](LICENSE.md) for more information.
+- [License](LICENSE.md) for more information.

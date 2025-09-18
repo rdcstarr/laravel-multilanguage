@@ -23,7 +23,6 @@ class Metadata extends Model
 		return $this->belongsTo(Language::class);
 	}
 
-	// Scope pentru a căuta după codul limbii
 	public function scopeByLanguageCode($query, string $languageCode)
 	{
 		return $query->whereHas('language', function ($q) use ($languageCode)

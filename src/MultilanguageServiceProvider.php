@@ -9,6 +9,17 @@ use Rdcstarr\Multilanguage\Commands\InstallCommand;
 
 class MultilanguageServiceProvider extends PackageServiceProvider
 {
+	public function configurePackage(Package $package): void
+	{
+		/*
+		 * This class is a Package Service Provider
+		 *
+		 * More info: https://github.com/spatie/laravel-package-tools
+		 */
+		$package->name('multilanguage')
+			->hasCommand(InstallCommand::class);
+	}
+
 	public function register(): void
 	{
 		parent::register();
@@ -22,12 +33,15 @@ class MultilanguageServiceProvider extends PackageServiceProvider
 		parent::boot();
 
 		// Load migrations
-		$this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+		if (app()->runningInConsole())
+		{
+			$this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
 
-		// Publish migrations
-		$this->publishes([
-			__DIR__ . '/../database/migrations' => database_path('migrations'),
-		], 'migrations');
+			// Publish migrations
+			$this->publishes([
+				__DIR__ . '/../database/migrations' => database_path('migrations'),
+			], 'migrations');
+		}
 
 		// @metadata('key', 'default')
 		Blade::directive('metadata', fn($expression) => "<?php echo e(metadata()->get($expression)); ?>");
@@ -48,16 +62,5 @@ class MultilanguageServiceProvider extends PackageServiceProvider
 
 		// @hasMetadataForLang('lang', 'key')
 		Blade::if('hasMetadataForLang', fn($lang, $key) => metadata()->lang($lang)->has($key));
-	}
-
-	public function configurePackage(Package $package): void
-	{
-		/*
-		 * This class is a Package Service Provider
-		 *
-		 * More info: https://github.com/spatie/laravel-package-tools
-		 */
-		$package->name('multilanguage')
-			->hasCommand(InstallCommand::class);
 	}
 }
