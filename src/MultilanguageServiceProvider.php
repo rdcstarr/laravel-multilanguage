@@ -41,6 +41,11 @@ class MultilanguageServiceProvider extends PackageServiceProvider
 			$this->publishes([
 				__DIR__ . '/../database/migrations' => database_path('migrations'),
 			], 'migrations');
+
+			// Publish seeder stub with correct namespace
+			$this->publishes([
+				__DIR__ . '/../stubs/LanguagesSeeder.php.stub' => database_path('seeders/LanguagesSeeder.php'),
+			], 'seeders');
 		}
 
 		// @metadata('key', 'default')

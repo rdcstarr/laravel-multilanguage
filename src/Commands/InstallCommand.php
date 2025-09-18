@@ -42,6 +42,7 @@ class InstallCommand extends Command
 		$this->components->info('Starting Multilanguage Package Installation...');
 
 		$steps = [
+			'📄 Publishing seeders' => 'publishSeeders',
 			'🏁 Running migrations' => 'runMigrations',
 			'🌱 Seeding languages'  => 'runSeeder',
 		];
@@ -63,6 +64,20 @@ class InstallCommand extends Command
 	}
 
 	/**
+	 * Publish the seeders.
+	 *
+	 * @return void
+	 */
+	protected function publishSeeders()
+	{
+		Artisan::call('vendor:publish', [
+			'--provider' => 'Rdcstarr\Multilanguage\MultilanguageServiceProvider',
+			'--tag'      => 'seeders',
+			'--force'    => true,
+		]);
+	}
+
+	/**
 	 * Run the migrations.
 	 *
 	 * @return void
@@ -79,9 +94,24 @@ class InstallCommand extends Command
 	 */
 	protected function runSeeder()
 	{
+		// Try to use the published seeder first, then fall back to package seeder
+		$publishedSeederClass = 'Database\\Seeders\\LanguagesSeeder';
+		$packageSeederClass   = LanguagesSeeder::class;
+
+		// Check if published seeder exists in the app
+		$publishedSeederPath = database_path('seeders/LanguagesSeeder.php');
+
+		if (file_exists($publishedSeederPath))
+		{
+			$seederClass = $publishedSeederClass;
+		}
+		else
+		{
+			$seederClass = $packageSeederClass;
+		}
 
 		Artisan::call('db:seed', [
-			'--class' => LanguagesSeeder::class,
+			'--class' => $seederClass,
 		]);
 	}
 }

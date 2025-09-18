@@ -1,6 +1,6 @@
 <?php
 
-namespace Rdcstarr\Multilanguage\Database\Seeders;
+namespace Database\Seeders;
 
 use Rdcstarr\Multilanguage\Models\Language;
 use Exception;

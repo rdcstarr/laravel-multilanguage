@@ -26,7 +26,7 @@ composer require rdcstarr/laravel-multilanguage
 
 1. (Optional) Publish migration files:
    ```bash
-   php artisan vendor:publish --provider="Rdcstarr\Multilanguage\MultilanguageServiceProvider" --tag="migrations"
+   php artisan vendor:publish --provider="Rdcstarr\Multilanguage\MultilanguageServiceProvider"
    ```
 2. Run migrations:
    ```bash
