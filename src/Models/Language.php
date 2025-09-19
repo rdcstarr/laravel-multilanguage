@@ -11,6 +11,7 @@ class Language extends Model
 		'name',
 		'code',
 		'flag',
+		'timezone',
 	];
 
 	public $timestamps = true;
