@@ -1,23 +1,23 @@
 <?php
 
-if (!function_exists('metadata'))
+if (!function_exists('mldata'))
 {
 	/**
-	 * Get app metadata value or instance
+	 * Get app mldata value or instance
 	 *
 	 * @param string|null $key
 	 * @param string|null $default
 	 * @return mixed
 	 */
-	function metadata(?string $key = null, ?string $default = null): mixed
+	function mldata(?string $key = null, ?string $default = null): mixed
 	{
-		$metadata = app('metadata');
+		$mldata = app('mldata');
 
 		if ($key === null)
 		{
-			return $metadata;
+			return $mldata;
 		}
 
-		return $metadata->get($key, $default);
+		return $mldata->get($key, $default);
 	}
 }

@@ -21,7 +21,7 @@ return new class extends Migration
 			$table->timestamps();
 		});
 
-		Schema::create('metadata', function (Blueprint $table)
+		Schema::create('mldata', function (Blueprint $table)
 		{
 			$table->id();
 			$table->foreignId('language_id')->constrained('languages');
@@ -38,7 +38,7 @@ return new class extends Migration
 	 */
 	public function down(): void
 	{
-		Schema::dropIfExists('metadata');
+		Schema::dropIfExists('mldata');
 		Schema::dropIfExists('languages');
 	}
 };

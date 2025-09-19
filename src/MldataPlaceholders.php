@@ -5,7 +5,7 @@ namespace Rdcstarr\Multilanguage;
 use Closure;
 use Illuminate\Support\Str;
 
-class MetadataPlaceholders
+class MldataPlaceholders
 {
 	/**
 	 * Replace placeholders in a line with corresponding values.

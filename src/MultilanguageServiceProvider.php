@@ -24,8 +24,8 @@ class MultilanguageServiceProvider extends PackageServiceProvider
 	{
 		parent::register();
 
-		// Register the MetadataManager singleton
-		$this->app->singleton('metadata', MetadataManager::class);
+		// Register the MldataManager singleton
+		$this->app->singleton('mldata', MldataManager::class);
 	}
 
 	public function boot(): void
@@ -48,24 +48,24 @@ class MultilanguageServiceProvider extends PackageServiceProvider
 			], 'seeders');
 		}
 
-		// @metadata('key', 'default')
-		Blade::directive('metadata', fn($expression) => "<?php echo e(metadata()->get($expression)); ?>");
+		// @mldata('key', 'default')
+		Blade::directive('mldata', fn($expression) => "<?php echo e(mldata()->get($expression)); ?>");
 
-		// @metadataForLang('lang', 'key', 'default')
-		Blade::directive('metadataForLang', function ($expression)
+		// @mldataForLang('lang', 'key', 'default')
+		Blade::directive('mldataForLang', function ($expression)
 		{
 			[$lang, $key, $default] = array_pad(explode(',', $expression, 3), 3, null);
 			$lang                   = trim($lang);
 			$key                    = $key ? trim($key) : "''";
 			$default                = $default ? trim($default) : 'null';
 
-			return "<?php echo e(metadata()->lang({$lang})->get({$key}, {$default})); ?>";
+			return "<?php echo e(mldata()->lang({$lang})->get({$key}, {$default})); ?>";
 		});
 
-		// @hasMetadata('key')
-		Blade::if('hasMetadata', fn($key) => metadata()->has($key));
+		// @hasMldata('key')
+		Blade::if('hasMldata', fn($key) => mldata()->has($key));
 
-		// @hasMetadataForLang('lang', 'key')
-		Blade::if('hasMetadataForLang', fn($lang, $key) => metadata()->lang($lang)->has($key));
+		// @hasMldataForLang('lang', 'key')
+		Blade::if('hasMldataForLang', fn($lang, $key) => mldata()->lang($lang)->has($key));
 	}
 }

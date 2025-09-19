@@ -4,21 +4,20 @@ namespace Rdcstarr\Multilanguage;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
 use InvalidArgumentException;
-use Rdcstarr\Multilanguage\MetadataPlaceholders;
+use Rdcstarr\Multilanguage\MldataPlaceholders;
 use Rdcstarr\Multilanguage\Models\Language;
-use Rdcstarr\Multilanguage\Models\Metadata;
+use Rdcstarr\Multilanguage\Models\Mldata;
 use Throwable;
 
-class MetadataManager
+class MldataManager
 {
 	/**
 	 * The cache key used for storing settings.
 	 *
 	 * @var string
 	 */
-	protected string $cacheKey = 'app_metadata';
+	protected string $cacheKey = 'app_mldata';
 
 	/**
 	 * Language code for settings.
@@ -52,14 +51,14 @@ class MetadataManager
 	{
 		$this->validateCurrentLanguage();
 
-		return Cache::rememberForever($this->cacheKey(), fn() => Metadata::byLanguageCode($this->languageCode)->pluck('value', 'key'));
+		return Cache::rememberForever($this->cacheKey(), fn() => Mldata::byLanguageCode($this->languageCode)->pluck('value', 'key'));
 	}
 
 	/**
-	 * Set the language for metadata retrieval.
+	 * Set the language for mldata retrieval.
 	 *
 	 * @param string|null $languageCode The language code to set (e.g., 'en', 'ro').
-	 * @return $this A new instance of MetadataManager with the specified language.
+	 * @return $this A new instance of MldataManager with the specified language.
 	 * @throws InvalidArgumentException If the language is not allowed.
 	 */
 	public function lang(?string $languageCode): self
@@ -80,11 +79,11 @@ class MetadataManager
 	public function get(string $key, mixed $default = null): object
 	{
 		$value        = (string) $this->all()->get($key, $default);
-		$placeholders = new MetadataPlaceholders();
+		$placeholders = new MldataPlaceholders();
 
 		return new class ($value, $placeholders)
 		{
-			public function __construct(private string $value, private MetadataPlaceholders $placeholders)
+			public function __construct(private string $value, private MldataPlaceholders $placeholders)
 			{
 			}
 
@@ -140,7 +139,7 @@ class MetadataManager
 				return false;
 			}
 
-			Metadata::updateOrCreate(
+			Mldata::updateOrCreate(
 				['language_id' => $language->id, 'key' => $key],
 				['value' => $value]
 			);
@@ -185,7 +184,7 @@ class MetadataManager
 				'updated_at'  => now(),
 			])->values()->toArray();
 
-			Metadata::upsert($data, ['language_id', 'key'], ['value', 'updated_at']);
+			Mldata::upsert($data, ['language_id', 'key'], ['value', 'updated_at']);
 			$this->flushCache();
 
 			return true;
@@ -224,7 +223,7 @@ class MetadataManager
 				return false;
 			}
 
-			$deleted = Metadata::where([
+			$deleted = Mldata::where([
 				'language_id' => $language->id,
 				'key'         => $key,
 			])->delete();
