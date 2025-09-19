@@ -145,6 +145,63 @@ metadata()->flushAllCache();                        // clear cache for all langu
 @endhasMetadataForLang
 ```
 
+### Placeholders
+
+#### Basic placeholders with transformations
+```php
+$line = "Hello :NAME, your :type_plural are ready! :message_limit";
+$result = metadata()->placeholders($line, [
+    'name' => 'john doe',        // key stays lowercase
+    'type' => 'order',
+    'message' => 'This is a very long message that will be truncated at 50 characters automatically',
+]);
+// Result: "Hello JOHN DOE, your orders are ready! This is a very long message that will be truncat..."
+```
+
+#### Available transformations
+```php
+// From a single key 'name' => 'john doe', you can use:
+$line = "Hello :name! Welcome :Name! Shout :NAME! Method: :name_camel, File: :name_snake.txt";
+$result = metadata()->placeholders($line, ['name' => 'john doe']);
+// Result: "Hello john doe! Welcome John doe! Shout JOHN DOE! Method: johnDoe, File: john_doe.txt"
+```
+
+#### Advanced placeholders with pipe transformations
+```php
+$line = "Welcome to :app_name|config! Your profile: :user|route(profile.show)";
+$result = metadata()->advancedPlaceholders($line, [
+    'app_name' => 'app.name',           // will call config('app.name')
+    'user' => 'profile.show',           // will call route('profile.show')
+]);
+```
+
+#### Laravel context helpers
+```php
+// laravelPlaceholders() auto-populates common Laravel data
+$data = metadata()->laravelPlaceholders(['custom' => 'value']);
+
+// $data now contains:
+// [
+//     'custom' => 'value',                    // your custom data
+//     'app_name' => 'Laravel',                // config('app.name')
+//     'app_env' => 'local',                   // config('app.env')
+//     'app_url' => 'http://localhost',        // config('app.url')
+//     'user_id' => 1,                         // auth()->user()->id (if logged in)
+//     'user_name' => 'John Doe',              // auth()->user()->name (if logged in)
+//     'user_email' => 'john@example.com',     // auth()->user()->email (if logged in)
+//     'request_path' => 'home',               // request()->path()
+//     'request_url' => 'http://localhost/home', // request()->url()
+//     'request_method' => 'GET',              // request()->method()
+//     'now' => '2025-09-19 10:30:00',         // now()->toDateTimeString()
+//     'today' => '2025-09-19',                // today()->toDateString()
+//     'timestamp' => 1726740600,              // time()
+// ]
+
+$line = "App: :app_name, User: :user_name, Today: :today, Custom: :custom_upper";
+$result = metadata()->placeholders($line, $data);
+// Result: "App: Laravel, User: John Doe, Today: 2025-09-19, Custom: VALUE"
+```
+
 ## 💡 Examples
 
 ### Website Content
