@@ -1,23 +1,23 @@
 <?php
 
-if (!function_exists('mldata'))
+if (!function_exists('localedata'))
 {
 	/**
-	 * Get app mldata value or instance
+	 * Get app localedata value or instance
 	 *
 	 * @param string|null $key
 	 * @param string|null $default
 	 * @return mixed
 	 */
-	function mldata(?string $key = null, ?string $default = null): mixed
+	function localedata(?string $key = null, ?string $default = null): mixed
 	{
-		$mldata = app('mldata');
+		$localedata = app('localedata');
 
 		if ($key === null)
 		{
-			return $mldata;
+			return $localedata;
 		}
 
-		return $mldata->get($key, $default);
+		return $localedata->get($key, $default);
 	}
 }

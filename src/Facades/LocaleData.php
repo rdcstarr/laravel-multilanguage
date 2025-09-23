@@ -5,12 +5,12 @@ namespace Rdcstarr\Multilanguage\Facades;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @see \Rdcstarr\Multilanguage\MldataManager
+ * @see \Rdcstarr\Multilanguage\LocaleDataManager
  */
-class Mldata extends Facade
+class LocaleData extends Facade
 {
 	protected static function getFacadeAccessor(): string
 	{
-		return \Rdcstarr\Multilanguage\MldataManager::class;
+		return \Rdcstarr\Multilanguage\LocaleDataManager::class;
 	}
 }

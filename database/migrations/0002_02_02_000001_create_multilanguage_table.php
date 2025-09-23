@@ -21,10 +21,10 @@ return new class extends Migration
 			$table->timestamps();
 		});
 
-		Schema::create('mldata', function (Blueprint $table)
+		Schema::create('locale_data', function (Blueprint $table)
 		{
 			$table->id();
-			$table->foreignId('language_id')->constrained('languages');
+			$table->foreignId('language_id')->constrained('languages')->onDelete('cascade');
 			$table->string('key')->index();
 			$table->longText('value');
 			$table->timestamps();
@@ -38,7 +38,7 @@ return new class extends Migration
 	 */
 	public function down(): void
 	{
-		Schema::dropIfExists('mldata');
+		Schema::dropIfExists('locale_data');
 		Schema::dropIfExists('languages');
 	}
 };

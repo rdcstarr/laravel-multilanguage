@@ -71,7 +71,7 @@
 				"Rdcstarr\\Multilanguage\\MultilanguageServiceProvider"
 			],
 			"aliases": {
-				"Mldata": "Rdcstarr\\Multilanguage\\Facades\\Mldata"
+				"LocaleData": "Rdcstarr\\Multilanguage\\Facades\\LocaleData"
 			}
 		}
 	}

@@ -16,8 +16,8 @@ class Language extends Model
 
 	public $timestamps = true;
 
-	public function mldata(): HasMany
+	public function data(): HasMany
 	{
-		return $this->hasMany(Mldata::class);
+		return $this->hasMany(LocaleData::class);
 	}
 }

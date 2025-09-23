@@ -5,7 +5,7 @@ namespace Rdcstarr\Multilanguage\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Mldata extends Model
+class LocaleData extends Model
 {
 	protected $fillable = [
 		'language_id',

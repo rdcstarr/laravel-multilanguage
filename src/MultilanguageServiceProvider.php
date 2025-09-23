@@ -24,8 +24,7 @@ class MultilanguageServiceProvider extends PackageServiceProvider
 	{
 		parent::register();
 
-		// Register the MldataManager singleton
-		$this->app->singleton('mldata', MldataManager::class);
+		$this->app->singleton('localedata', LocaleDataManager::class);
 	}
 
 	public function boot(): void
@@ -48,24 +47,24 @@ class MultilanguageServiceProvider extends PackageServiceProvider
 			], 'seeders');
 		}
 
-		// @mldata('key', 'default')
-		Blade::directive('mldata', fn($expression) => "<?php echo e(mldata()->get($expression)); ?>");
+		// @localedata('key', 'default')
+		Blade::directive('localedata', fn($expression) => "<?php echo e(localedata()->get($expression)); ?>");
 
-		// @mldataForLang('lang', 'key', 'default')
-		Blade::directive('mldataForLang', function ($expression)
+		// @localedataForLang('lang', 'key', 'default')
+		Blade::directive('localedataForLang', function ($expression)
 		{
 			[$lang, $key, $default] = array_pad(explode(',', $expression, 3), 3, null);
 			$lang                   = trim($lang);
 			$key                    = $key ? trim($key) : "''";
 			$default                = $default ? trim($default) : 'null';
 
-			return "<?php echo e(mldata()->lang({$lang})->get({$key}, {$default})); ?>";
+			return "<?php echo e(localedata()->lang({$lang})->get({$key}, {$default})); ?>";
 		});
 
-		// @hasMldata('key')
-		Blade::if('hasMldata', fn($key) => mldata()->has($key));
+		// @hasLocaledata('key')
+		Blade::if('hasLocaledata', fn($key) => localedata()->has($key));
 
-		// @hasMldataForLang('lang', 'key')
-		Blade::if('hasMldataForLang', fn($lang, $key) => mldata()->lang($lang)->has($key));
+		// @hasLocaledataForLang('lang', 'key')
+		Blade::if('hasLocaledataForLang', fn($lang, $key) => localedata()->lang($lang)->has($key));
 	}
 }
