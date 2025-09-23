@@ -60,9 +60,9 @@ class LocaleDataManager
 	 * @param mixed $default The default value to return if the key doesn't exist.
 	 * @return object The locale data value wrapped with placeholder methods.
 	 */
-	public function get(string $key, mixed $default = null): object
+	public function get(string $key, mixed $default = ''): mixed
 	{
-		if ($default === null && !$this->has($key))
+		if (blank($default) && !$this->has($key))
 		{
 			throw new InvalidArgumentException("Locale data key '{$key}' doesn't exist for language '{$this->languageCode}'.");
 		}
@@ -138,7 +138,7 @@ class LocaleDataManager
 			);
 
 			$this->flushCache();
-			
+
 			return true;
 
 		}
