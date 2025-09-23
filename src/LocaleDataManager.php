@@ -194,7 +194,7 @@ class LocaleDataManager
 	 */
 	public function has(string $key): bool
 	{
-		return $this->all()->has($key);
+		return $this->all()->keys()->contains($key);
 	}
 
 	/**
