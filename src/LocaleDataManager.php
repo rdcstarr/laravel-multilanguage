@@ -62,7 +62,7 @@ class LocaleDataManager
 	 */
 	public function get(string $key, mixed $default = ''): mixed
 	{
-		if (blank($default) && !$this->has($key))
+		if ($default === '' && !$this->has($key))
 		{
 			throw new InvalidArgumentException("Locale data key '{$key}' doesn't exist for language '{$this->languageCode}'.");
 		}
