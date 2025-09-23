@@ -6,10 +6,10 @@ if (!function_exists('localedata'))
 	 * Get app localedata value or instance
 	 *
 	 * @param string|null $key
-	 * @param string|null $default
+	 * @param mixed $default
 	 * @return mixed
 	 */
-	function localedata(?string $key = null, ?string $default = null): mixed
+	function localedata(?string $key = null, mixed $default = ''): mixed
 	{
 		$localedata = app('localedata');
 
