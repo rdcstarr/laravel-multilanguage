@@ -17,6 +17,7 @@ class MultilanguageServiceProvider extends PackageServiceProvider
 		 * More info: https://github.com/spatie/laravel-package-tools
 		 */
 		$package->name('multilanguage')
+			->hasConfigFile()
 			->hasCommand(InstallCommand::class);
 	}
 
@@ -25,6 +26,7 @@ class MultilanguageServiceProvider extends PackageServiceProvider
 		parent::register();
 
 		$this->app->singleton('localedata', LocaleDataManager::class);
+		$this->app->singleton('localedata.placeholders', LocaleDataPlaceholders::class);
 	}
 
 	public function boot(): void
