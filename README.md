@@ -222,14 +222,45 @@ The package includes powerful placeholder support with default date/time placeho
 
 **Date & Time:**
 
--   `:year`, `:month`, `:day`, `:hour`, `:minute`, `:second`
--   `:month_name`, `:day_name`, `:week`, `:quarter`
--   `:date`, `:time`, `:datetime`, `:timestamp`
--   `:iso`, `:ago` (human readable)
+-   `:year` - 2025
+-   `:month` - 10
+-   `:month_name` - October
+-   `:month_short` - Oct
+-   `:day` - 20
+-   `:day_name` - Monday
+-   `:day_short` - Mon
+-   `:quarter` - 4
+-   `:hour` - 14 (24h)
+-   `:hour_12` - 2 (12h)
+-   `:minute` - 30
+-   `:second` - 45
+-   `:am_pm` - AM/PM
+-   `:am_pm_lower` - am/pm
+
+**Complete Formats:**
+
+-   `:date` - 2025-10-20
+-   `:date_formatted` - 20/10/2025
+-   `:date_us` - 10/20/2025
+-   `:time` - 14:30:45
+-   `:time_short` - 14:30
+-   `:datetime` - 2025-10-20 14:30:45
+-   `:timestamp` - Unix timestamp
+-   `:iso` - 2025-10-20T14:30:45+00:00
+-   `:ago` - "1 second ago" (human readable)
 
 **App Info:**
 
--   `:app_name`, `:app_env`, `:app_url`
+-   `:app_name` - Application name from config
+-   `:app_env` - Environment (production, local, etc.)
+-   `:app_url` - Application URL
+
+**Other:**
+
+-   `:week` - Week number
+-   `:day_of_year` - Day of year (1-365)
+-   `:days_in_month` - Days in current month
+-   `:timezone` - UTC
 
 ### Usage in Translations
 
@@ -239,6 +270,9 @@ localedata()->set('footer.copyright', '© :year :app_name. All rights reserved.'
 
 localedata()->set('report.generated', 'Generated on :date at :time_short');
 // Output: Generated on 2025-10-20 at 14:30
+
+localedata()->set('greetings.time', 'It is :time, :day_name :month_name :day, :year');
+// Output: It is 14:30:45, Monday October 20, 2025
 ```
 
 ### Custom Placeholders
@@ -259,22 +293,45 @@ return [
         'company_name' => env('COMPANY_NAME', 'My Company'),
         'support_email' => 'support@example.com',
         'support_phone' => '+40 123 456 789',
+        'copyright_year' => date('Y'),
+        'vat_number' => 'RO12345678',
     ],
 ];
+```
+
+**Usage:**
+
+```php
+localedata()->set('footer.copyright', '© :copyright_year :company_name. All rights reserved.');
+localedata()->set('contact.info', 'Contact us at :support_email or call :support_phone');
 ```
 
 #### Method 2: In AppServiceProvider (For dynamic values)
 
 ```php
 use Rdcstarr\Multilanguage\LocaleDataPlaceholders;
+use App\Models\User;
 
 public function boot()
 {
+    // Set multiple placeholders at once
     LocaleDataPlaceholders::setCustomPlaceholders([
         'total_users' => User::count(),
-        'active_sessions' => Session::where('active', true)->count(),
+        'active_users' => User::where('active', true)->count(),
+        'latest_post' => Post::latest()->first()?->title,
+        'site_status' => Cache::get('site_status', 'online'),
     ]);
+
+    // Or add individually
+    LocaleDataPlaceholders::addCustomPlaceholder('active_sessions', Session::where('active', true)->count());
 }
+```
+
+**Usage:**
+
+```php
+localedata()->set('dashboard.stats', 'Platform Stats: :total_users users, :active_users active');
+// Output: Platform Stats: 1,234 users, 567 active
 ```
 
 #### Method 3: Helper Function
@@ -293,36 +350,227 @@ set_placeholder([
 #### Method 4: Runtime (Context-specific)
 
 ```php
-$message = localedata()->get('user.welcome', '', [
-    'username' => $user->name,
-    'last_login' => $user->last_login_at->diffForHumans(),
-]);
+// In controller
+public function show(User $user)
+{
+    $greeting = localedata()->get('user.welcome', '', [
+        'username' => $user->name,
+        'last_login' => $user->last_login_at->diffForHumans(),
+    ]);
+
+    return view('profile', compact('greeting'));
+}
+```
+
+**Translation:**
+
+```php
+localedata()->set('user.welcome', 'Hello :Username! Last seen: :last_login');
+// Output: Hello John Doe! Last seen: 2 hours ago
 ```
 
 ### Placeholder Transformations
 
-All placeholders support automatic transformations:
+All placeholders (custom and default) support automatic transformations:
 
 ```php
 set_placeholder('company_name', 'my company');
 
-// In translations:
+// Available transformations:
 :company_name           // my company
 :Company_name           // My company (ucfirst)
 :COMPANY_NAME           // MY COMPANY (uppercase)
 :company_name_camel     // myCompany
 :company_name_studly    // MyCompany
+:company_name_snake     // my_company
 :company_name_kebab     // my-company
 :company_name_slug      // my-company
 :company_name_plural    // my companies
+:company_name_singular  // my company
 :company_name_upper     // MY COMPANY
+:company_name_lower     // my company
 :company_name_title     // My Company
 ```
 
-### Real-World Example
+### Placeholder Priority
+
+Placeholders are applied in the following order (last one overrides):
+
+1. **Default placeholders** (date, time, app info)
+2. **Config placeholders** (`config/multilanguage.php`)
+3. **Custom static placeholders** (`LocaleDataPlaceholders::setCustomPlaceholders()`)
+4. **Runtime placeholders** (parameter in `get()` method)
+
+### Safe Placeholder Usage with User Input
+
+⚠️ **Important:** When using placeholders with user-generated content, always escape the input to prevent unwanted placeholder replacement.
+
+#### The Problem
+
+```php
+// User searches for ":year"
+$query = ':year';
+
+// Translation
+localedata()->set('search.meta_title', 'Search results for: :query');
+
+// Without escaping
+$title = localedata()->get('search.meta_title')->placeholders(['query' => $query]);
+// Output: "Search results for: 2025" ❌ WRONG! :year in query was replaced
+```
+
+#### The Solution: Use `escape_placeholders()`
+
+```php
+// In Controller
+public function search(Request $request)
+{
+    $query = $request->input('q');
+
+    // ESCAPE user query
+    $safeQuery = escape_placeholders($query);
+
+    $title = localedata()->get('search.meta_title')->placeholders([
+        'query' => $safeQuery
+    ]);
+
+    return view('search.results', compact('title', 'query'));
+}
+```
+
+**Now it works correctly:**
+
+```php
+$userInput = ':year in review';
+$safe = escape_placeholders($userInput);
+
+$title = localedata()->get('search.meta_title')->placeholders(['query' => $safe]);
+// Output: "Search results for: :year in review" ✅ CORRECT!
+```
+
+#### When to Escape
+
+**✅ ALWAYS escape for:**
+
+-   User input (search queries, comments, usernames)
+-   User-generated titles/descriptions
+-   Any user-provided data in placeholders
+
+**❌ NO need to escape for:**
+
+-   Admin-controlled database values
+-   Code constants
+-   System-calculated values (counters, dates)
+-   Default placeholders (`:year`, `:app_name`, etc.)
+
+#### Alternative Escape Methods
+
+```php
+// Method 1: Helper function (recommended)
+$safe = escape_placeholders($userInput);
+
+// Method 2: Static method
+use Rdcstarr\Multilanguage\LocaleDataPlaceholders;
+$safe = LocaleDataPlaceholders::escape($userInput);
+
+// Method 3: Facade
+use Rdcstarr\Multilanguage\Facades\Placeholders;
+$safe = Placeholders::escape($userInput);
+```
+
+#### Practical Examples
+
+**Search Results:**
+
+```php
+Route::get('/search', function (Request $request) {
+    $query = escape_placeholders($request->input('q'));
+
+    $title = localedata()->get('search.meta_title')->placeholders([
+        'query' => $query, // Safe!
+    ]);
+
+    return view('search', compact('title'));
+});
+```
+
+**User Profile:**
+
+```php
+public function show(User $user)
+{
+    $metaTitle = localedata()->get('profile.meta_title')->placeholders([
+        'username' => escape_placeholders($user->name), // Escape username
+        // :app_name and :year are safe (default placeholders)
+    ]);
+
+    return view('profile.show', compact('user', 'metaTitle'));
+}
+```
+
+**Comment System:**
+
+```php
+public function store(Request $request, Post $post)
+{
+    $notification = localedata()->get('comment.notification')->placeholders([
+        'username' => escape_placeholders(auth()->user()->name),
+        'comment_preview' => escape_placeholders(Str::limit($request->content, 50)),
+    ]);
+}
+```
+
+For more details on safe placeholder usage, see the **Safe Placeholder Usage with User Input** section above.
+
+### Real-World Examples
+
+#### Footer Copyright
+
+```php
+// Config
+'placeholders' => [
+    'company_name' => 'Acme Corporation',
+    'year' => date('Y'),
+],
+
+// Translation
+localedata()->set('footer.text', '© :year :company_name. Made with ❤️ in Romania');
+// Output: © 2025 Acme Corporation. Made with ❤️ in Romania
+```
+
+#### Live Statistics
 
 ```php
 // AppServiceProvider
+LocaleDataPlaceholders::setCustomPlaceholders([
+    'total_users' => Cache::remember('stats.users', 3600, fn() => User::count()),
+    'total_posts' => Cache::remember('stats.posts', 3600, fn() => Post::count()),
+    'total_comments' => Cache::remember('stats.comments', 3600, fn() => Comment::count()),
+]);
+
+// Translation
+localedata()->set('stats.overview', 'We have :total_users users who created :total_posts posts with :total_comments comments!');
+```
+
+#### Personalized Messages
+
+```php
+// In controller
+$message = localedata()->get('user.welcome', '', [
+    'username' => auth()->user()->name,
+    'unread_count' => auth()->user()->unreadNotifications()->count(),
+]);
+
+// Translation
+localedata()->set('user.welcome', 'Welcome back, :Username! You have :unread_count new notifications.');
+// Output: Welcome back, John! You have 5 new notifications.
+```
+
+#### Product Catalog
+
+```php
+// AppServiceProvider
+$productId = 123;
 LocaleDataPlaceholders::setCustomPlaceholders([
     'site_name' => config('app.name'),
     'total_products' => Product::count(),
@@ -330,15 +578,62 @@ LocaleDataPlaceholders::setCustomPlaceholders([
 
 // Translation
 localedata()->set('home.hero', 'Welcome to :site_name! We have :total_products amazing products.');
-
-// Controller
-$greeting = localedata()->get('user.greeting', '', [
-    'username' => $user->name,
-]);
-// Translation: "Hello :Username! Last seen: :ago"
 ```
 
-📖 **[Full Placeholders Guide](PLACEHOLDERS.md)** with more examples and advanced usage.
+#### Email Subject
+
+```php
+// Mailable
+public function build()
+{
+    $userName = escape_placeholders($this->user->name);
+
+    return $this->subject(
+        localedata()->get('email.welcome.subject')->placeholders([
+            'username' => $userName,
+        ])
+    );
+}
+
+// Translation
+localedata()->set('email.welcome.subject', 'Welcome :username! Your account on :app_name');
+```
+
+### Closure Support
+
+For complex logic, use Closures:
+
+```php
+LocaleDataPlaceholders::addCustomPlaceholder('dynamic_greeting', function($content) {
+    $hour = now()->hour;
+    if ($hour < 12) return "Good morning, $content";
+    if ($hour < 18) return "Good afternoon, $content";
+    return "Good evening, $content";
+});
+
+// In translation with XML tag
+localedata()->set('greeting', '<dynamic_greeting>:username</dynamic_greeting>, welcome to our site!');
+```
+
+### Debugging Placeholders
+
+```php
+// View all custom placeholders
+$custom = LocaleDataPlaceholders::getCustomPlaceholders();
+dd($custom);
+
+// Clear custom placeholders (useful in tests)
+LocaleDataPlaceholders::clearCustomPlaceholders();
+```
+
+### Best Practices
+
+1. **Use config for static values** (company name, contact info)
+2. **Use static placeholders for cached values** (user counts, statistics)
+3. **Use runtime placeholders for context-specific data** (user names, IDs)
+4. **Cache expensive queries** when using in placeholders
+5. **Always escape user input** before using in placeholders
+6. **Test transformations** to find the best fit for your use case
 
 ## ⚡ Performance
 
