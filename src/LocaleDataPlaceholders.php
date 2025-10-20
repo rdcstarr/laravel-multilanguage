@@ -80,8 +80,8 @@ class LocaleDataPlaceholders
 			// Case transformations
 			$shouldReplace[':' . Str::ucfirst($keyStr)] = Str::ucfirst($valStr); // :Key => ucfirst
 			$shouldReplace[':' . Str::upper($keyStr)]   = Str::upper($valStr); // :KEY => upper
-			$shouldReplace[':' . Str::lower($keyStr)]   = Str::lower($valStr); // :key_lower => lower
-			$shouldReplace[':' . Str::title($keyStr)]   = Str::title($valStr); // :Key_title => Title Case
+			$shouldReplace[":{$keyStr}_lower"]          = Str::lower($valStr); // :key_lower => lower
+			$shouldReplace[":{$keyStr}_title"]          = Str::title($valStr); // :key_title => Title Case
 
 			// Laravel-specific transformations
 			$shouldReplace[":{$keyStr}_camel"]  = Str::camel($valStr); // :key_camel => camelCase
