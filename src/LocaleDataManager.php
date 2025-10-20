@@ -88,7 +88,8 @@ class LocaleDataManager
 
 			public function __toString(): string
 			{
-				return $this->value;
+				// Automatically apply default placeholders when converting to string
+				return $this->placeholders->placeholders($this->value);
 			}
 		};
 	}
@@ -121,7 +122,7 @@ class LocaleDataManager
 	 * @param mixed $value The value to set (ignored when $key is an array).
 	 * @return bool
 	 */
-	public function set(string|array $key, mixed $value = null): bool
+	public function set(string|array $key, mixed $value = ''): bool
 	{
 		if (is_array($key))
 		{
