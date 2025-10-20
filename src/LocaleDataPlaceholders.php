@@ -124,55 +124,86 @@ class LocaleDataPlaceholders
 	 */
 	protected function getDefaultPlaceholders(): array
 	{
-		$now = now();
+		static $cache = null;
+		static $processing = false;
 
-		return [
-			// Date components
-			'year'           => $now->year, // 2025
-			'month'          => $now->month, // 10
-			'month_name'     => $now->monthName, // October
-			'month_short'    => $now->shortMonthName, // Oct
-			'day'            => $now->day, // 20
-			'day_name'       => $now->dayName, // Monday
-			'day_short'      => $now->shortDayName, // Mon
-			'quarter'        => $now->quarter, // 4
+		// Prevent infinite loops
+		if ($processing)
+		{
+			return [];
+		}
 
-			// Time components
-			'hour'           => $now->hour, // 14 (24-hour format)
-			'hour_12'        => $now->format('g'), // 2 (12-hour format)
-			'minute'         => $now->minute, // 30
-			'second'         => $now->second, // 45
-			'am_pm'          => $now->format('A'), // AM/PM
-			'am_pm_lower'    => $now->format('a'), // am/pm
+		// Return cached values if available
+		if ($cache !== null)
+		{
+			return $cache;
+		}
 
-			// Common date formats
-			'date'           => $now->toDateString(), // 2025-10-20
-			'date_formatted' => $now->format('d/m/Y'), // 20/10/2025
-			'date_us'        => $now->format('m/d/Y'), // 10/20/2025
-			'time'           => $now->toTimeString(), // 14:30:45
-			'time_short'     => $now->format('H:i'), // 14:30
-			'datetime'       => $now->toDateTimeString(), // 2025-10-20 14:30:45
-			'timestamp'      => $now->timestamp, // Unix timestamp
+		$processing = true;
 
-			// ISO formats
-			'iso'            => $now->toIso8601String(), // 2025-10-20T14:30:45+00:00
-			'iso_date'       => $now->toIso8601ZuluString(), // 2025-10-20T14:30:45Z
+		try
+		{
+			$now = now();
 
-			// Human-readable formats
-			'ago'            => $now->diffForHumans(), // 1 second ago
-			'timezone'       => $now->timezoneName, // UTC
+			$cache = [
+				// Date components
+				'year'           => (string) $now->year, // 2025
+				'month'          => (string) $now->month, // 10
+				'month_name'     => (string) $now->monthName, // October
+				'month_short'    => (string) $now->shortMonthName, // Oct
+				'day'            => (string) $now->day, // 20
+				'day_name'       => (string) $now->dayName, // Monday
+				'day_short'      => (string) $now->shortDayName, // Mon
+				'quarter'        => (string) $now->quarter, // 4
 
-			// Week and year information
-			'week'           => $now->week, // Week number
-			'week_year'      => $now->weekYear, // ISO week year
-			'day_of_year'    => $now->dayOfYear, // Day number in year (1-365/366)
-			'days_in_month'  => $now->daysInMonth, // 31
+				// Time components
+				'hour'           => (string) $now->hour, // 14 (24-hour format)
+				'hour_12'        => $now->format('g'), // 2 (12-hour format)
+				'minute'         => (string) $now->minute, // 30
+				'second'         => (string) $now->second, // 45
+				'am_pm'          => $now->format('A'), // AM/PM
+				'am_pm_lower'    => $now->format('a'), // am/pm
 
-			// Application info (if available)
-			'app_name'       => config('app.name', 'Laravel'),
-			'app_env'        => config('app.env', 'production'),
-			'app_url'        => config('app.url', ''),
-		];
+				// Common date formats
+				'date'           => $now->toDateString(), // 2025-10-20
+				'date_formatted' => $now->format('d/m/Y'), // 20/10/2025
+				'date_us'        => $now->format('m/d/Y'), // 10/20/2025
+				'time'           => $now->toTimeString(), // 14:30:45
+				'time_short'     => $now->format('H:i'), // 14:30
+				'datetime'       => $now->toDateTimeString(), // 2025-10-20 14:30:45
+				'timestamp'      => (string) $now->timestamp, // Unix timestamp
+
+				// ISO formats
+				'iso'            => $now->toIso8601String(), // 2025-10-20T14:30:45+00:00
+				'iso_date'       => $now->toIso8601ZuluString(), // 2025-10-20T14:30:45Z
+
+				// Human-readable formats
+				'ago'            => $now->diffForHumans(), // 1 second ago
+				'timezone'       => (string) $now->timezoneName, // UTC
+
+				// Week and year information
+				'week'           => (string) $now->week, // Week number
+				'week_year'      => (string) $now->weekYear, // ISO week year
+				'day_of_year'    => (string) $now->dayOfYear, // Day number in year (1-365/366)
+				'days_in_month'  => (string) $now->daysInMonth, // 31
+
+				// Application info (if available)
+				'app_name'       => (string) config('app.name', 'Laravel'),
+				'app_env'        => (string) config('app.env', 'production'),
+				'app_url'        => (string) config('app.url', ''),
+			];
+		}
+		catch (\Throwable $e)
+		{
+			// If anything fails, return empty array to prevent loops
+			$cache = [];
+		}
+		finally
+		{
+			$processing = false;
+		}
+
+		return $cache;
 	}
 
 	/**
@@ -182,7 +213,37 @@ class LocaleDataPlaceholders
 	 */
 	protected function getConfigPlaceholders(): array
 	{
-		return config('multilanguage.placeholders', []);
+		static $cache = null;
+		static $processing = false;
+
+		// Prevent infinite loops
+		if ($processing)
+		{
+			return [];
+		}
+
+		// Return cached values if available
+		if ($cache !== null)
+		{
+			return $cache;
+		}
+
+		$processing = true;
+
+		try
+		{
+			$cache = (array) config('multilanguage.placeholders', []);
+		}
+		catch (\Throwable $e)
+		{
+			$cache = [];
+		}
+		finally
+		{
+			$processing = false;
+		}
+
+		return $cache;
 	}
 
 	/**
@@ -228,4 +289,29 @@ class LocaleDataPlaceholders
 	{
 		return static::$customPlaceholders;
 	}
+
+	/**
+	 * Escape placeholder syntax in user-generated content.
+	 * Replaces : with a safe placeholder to prevent unintended replacements.
+	 *
+	 * @param string $value The user-generated value to escape
+	 * @return string The escaped value
+	 */
+	public static function escape(string $value): string
+	{
+		// Replace colons followed by word characters (placeholder pattern) with a safe version
+		return str_replace(':', '&#58;', $value);
+	}
+
+	/**
+	 * Unescape previously escaped placeholder syntax.
+	 *
+	 * @param string $value The escaped value
+	 * @return string The unescaped value
+	 */
+	public static function unescape(string $value): string
+	{
+		return str_replace('&#58;', ':', $value);
+	}
 }
+

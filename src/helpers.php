@@ -65,3 +65,31 @@ if (!function_exists('set_placeholder'))
 		}
 	}
 }
+
+if (!function_exists('escape_placeholders'))
+{
+	/**
+	 * Escape placeholder syntax in user-generated content
+	 *
+	 * @param string $value
+	 * @return string
+	 */
+	function escape_placeholders(string $value): string
+	{
+		return \Rdcstarr\Multilanguage\LocaleDataPlaceholders::escape($value);
+	}
+}
+
+if (!function_exists('unescape_placeholders'))
+{
+	/**
+	 * Unescape previously escaped placeholder syntax
+	 *
+	 * @param string $value
+	 * @return string
+	 */
+	function unescape_placeholders(string $value): string
+	{
+		return \Rdcstarr\Multilanguage\LocaleDataPlaceholders::unescape($value);
+	}
+}

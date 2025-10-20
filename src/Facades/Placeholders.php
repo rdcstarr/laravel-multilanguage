@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Facade;
  * @method static void clearCustomPlaceholders()
  * @method static array getCustomPlaceholders()
  * @method static string placeholders(string $line, array $replace = [], array $stringableHandlers = [])
+ * @method static string escape(string $value)
+ * @method static string unescape(string $value)
  *
  * @see \Rdcstarr\Multilanguage\LocaleDataPlaceholders
  */

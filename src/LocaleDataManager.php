@@ -72,12 +72,15 @@ class LocaleDataManager
 
 		return new class ($value, $placeholders)
 		{
+			private bool $processing = false;
+
 			public function __construct(private string $value, private LocaleDataPlaceholders $placeholders)
 			{
 			}
 
 			public function placeholders(array $replace = [], array $stringableHandlers = []): string
 			{
+				// Merge with default placeholders
 				return $this->placeholders->placeholders($this->value, $replace, $stringableHandlers);
 			}
 
@@ -88,8 +91,29 @@ class LocaleDataManager
 
 			public function __toString(): string
 			{
-				// Automatically apply default placeholders when converting to string
-				return $this->placeholders->placeholders($this->value);
+				// Prevent infinite loops
+				if ($this->processing)
+				{
+					return $this->value;
+				}
+
+				$this->processing = true;
+
+				try
+				{
+					// Automatically apply default placeholders when converting to string
+					$result = $this->placeholders->placeholders($this->value);
+				}
+				catch (Throwable $e)
+				{
+					$result = $this->value;
+				}
+				finally
+				{
+					$this->processing = false;
+				}
+
+				return $result;
 			}
 		};
 	}
