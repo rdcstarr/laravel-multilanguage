@@ -651,12 +651,12 @@ composer test
 
 ## 📖 Resources
 
--   [Changelog](CHANGELOG.md) for recent changes.
+-   [Changelog](CHANGELOG.md) for more information on what has changed recently. ✍️
 
 ## 👥 Credits
 
--   [Rdcstarr](https://github.com/rdcstarr)
+-   [Rdcstarr](https://github.com/rdcstarr) 🙌
 
 ## 📜 License
 
--   [License](LICENSE.md) for more information.
+-   [License](LICENSE.md) for more information. ⚖️
